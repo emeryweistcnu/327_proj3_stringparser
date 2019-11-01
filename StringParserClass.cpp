@@ -25,13 +25,20 @@ StringParserClass::StringParserClass(void)
 
 StringParserClass::~StringParserClass(void)
 {
-
+	cleanup();
 }
 
 int StringParserClass::setTags(const char *pStart, const char *pEnd)
 {
-	if (pStart == NULL || pEnd == NULL)
-		return ERROR_TAGS_NULL;
+	if (pStart == NULL || pEnd == NULL) return ERROR_TAGS_NULL;
+	pDataToSearchThru
+	int is = strlen(pStart);
+	pStartTag = new char[is+1];
+	strncpy(pStartTag, pStart, is);
+
+	int ie = strlen(pEnd);
+	pEndTag = new char[ie+1];
+	strncpy(pEndTag, pEnd, ie);
 
 	return SUCCESS;
 }
@@ -39,23 +46,59 @@ int StringParserClass::setTags(const char *pStart, const char *pEnd)
 int StringParserClass::getDataBetweenTags(char *pDataToSearchThru,
 		std::vector<std::string> &myVector)
 {
-	if (pDataToSearchThru == NULL)
-		return ERROR_DATA_NULL;
+	if (pStartTag == NULL || pEndTag == NULL) return ERROR_TAGS_NULL;
+
+	if (pDataToSearchThru == NULL) return ERROR_DATA_NULL;
 
 	myVector.clear();
+
+	char *start = pDataToSearchThru;
+	char *end = pDataToSearchThru;
+
+	for (unsigned int i = 0; i < strlen(pDataToSearchThru); i++) end++;
+
+	findTag(pStartTag, start, end);
+	findTag(pEndTag, start, end);
+
+	/*std::string s = "";
+	start++;
+
+	while (start != end)
+	{
+		s += *start;
+		start++;
+	}
+
+	myVector.push_back(s);*/
 
 	return SUCCESS;
 }
 
 void StringParserClass::cleanup()
 {
+	if (pStartTag) delete[] pStartTag;
 
+	if (pEndTag) delete[] pEndTag;
 }
 
 int StringParserClass::findTag(char *pTagToLookFor, char *&pStart, char *&pEnd)
 {
 	if (pStart == NULL || pEnd == NULL)
 		return ERROR_TAGS_NULL;
+
+	while (!areTagsSet)
+	{
+		if (*pStart == '<')
+		{
+			if (*pEnd == '>')
+			{
+				//try comparison
+			}
+			pEnd--;
+			continue;
+		}
+		pStart++;
+	}
 
 	return SUCCESS;
 }
